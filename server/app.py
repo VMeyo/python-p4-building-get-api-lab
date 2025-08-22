@@ -10,29 +10,35 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
+db.init_app(app)
 migrate = Migrate(app, db)
 
-db.init_app(app)
+
 
 @app.route('/')
 def index():
     return '<h1>Bakery GET API</h1>'
 
-@app.route('/bakeries')
+@app.route('/bakeries', methods=['GET'])
 def bakeries():
-    return ''
+    bakeries = Bakery.query.all()
+    return jsonify([bakery.to_dict() for bakery in bakeries])
+    
 
-@app.route('/bakeries/<int:id>')
+@app.route('/bakeries/<int:id>', methods=['GET'])
 def bakery_by_id(id):
-    return ''
+    bakery = Bakery.query.get_or_404(id)
+    return jsonify(bakery.to_dict())
 
-@app.route('/baked_goods/by_price')
+@app.route('/baked_goods/by_price', methods=['GET'])
 def baked_goods_by_price():
-    return ''
+    baked_goods = BakedGood.query.order_by(BakedGood.price.desc()).all()
+    return jsonify([baked_good.to_dict() for baked_good in baked_goods])
 
-@app.route('/baked_goods/most_expensive')
+@app.route('/baked_goods/most_expensive', methods=['GET'])
 def most_expensive_baked_good():
-    return ''
+    baked_good = BakedGood.query.order_by(BakedGood.price.desc()).first()
+    return jsonify(baked_good.to_dict())
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
